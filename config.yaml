@@ -1,0 +1,65 @@
+# dataset: kaggle_creditcard | credit_dt
+data:
+  dataset: credit_dt
+  path: data/creditcard.csv
+  target_column: Class
+  test_size: 0.2
+  random_state: 42
+  credit_dt:
+    train_path: data/credit_dt/fraudTrain.csv
+    test_path: data/credit_dt/fraudTest.csv
+    # Set null for full 1.3M / 555k rows (slow). Caps keep training practical.
+    max_train_rows: 200000
+    max_test_rows: 100000
+
+etl:
+  drop_duplicates: true
+  smote:
+    enabled: true
+    sampling_strategy: auto
+    k_neighbors: 5
+
+engineering:
+  scale_features: true
+  pca:
+    enabled: true
+    n_components: 2
+
+model:
+  catboost:
+    iterations: 500
+    learning_rate: 0.05
+    depth: 6
+    eval_metric: AUC
+    auto_class_weights: Balanced
+    verbose: 100
+
+monitoring:
+  drift:
+    alpha: 0.05
+    min_samples: 100
+
+realtime:
+  window_size: 500
+  drift_check_interval: 50
+  stream_batch_size: 10
+  transactions_per_second: 25
+  fraud_threshold: 0.5
+  history_size: 200
+  anomaly:
+    enabled: true
+    contamination: 0.002
+    n_estimators: 100
+
+governance:
+  min_roc_auc: 0.85
+  drift_features_alert: 3
+  drift_features_block: 10
+  high_drift_p: 0.001
+
+paths:
+  artifacts: artifacts
+  models: artifacts/models
+  plots: artifacts/plots
+  baselines: artifacts/baselines
+  registry: artifacts/registry

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sentinel — real-time financial fraud detection with AI drift monitoring" />
+  <title>Sentinel · Fraud Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div class="mesh" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#home" data-nav="home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-text">
+        <strong>Sentinel</strong>
+        <small>Fraud Intelligence</small>
+      </span>
+    </a>
+
+    <nav class="side-nav">
+      <a href="#home" class="nav-link active" data-nav="home">
+        <span class="nav-icon">◈</span> Overview
+      </a>
+      <a href="#score" class="nav-link" data-nav="score">
+        <span class="nav-icon">◎</span> Score transaction
+      </a>
+      <a href="#batch" class="nav-link" data-nav="batch">
+        <span class="nav-icon">▤</span> Batch analysis
+      </a>
+      <a href="#live" class="nav-link" data-nav="live">
+        <span class="nav-icon">◉</span> Live stream
+      </a>
+      <a href="#system" class="nav-link" data-nav="system">
+        <span class="nav-icon">⬡</span> System
+      </a>
+    </nav>
+
+    <div class="sidebar-status" id="sidebar-health">
+      <span class="status-dot"></span>
+      <span class="status-label">Connecting…</span>
+    </div>
+  </aside>
+
+  <div class="shell">
+    <header class="topbar">
+      <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open menu">☰</button>
+      <div class="topbar-title">
+        <h1 id="page-title">Overview</h1>
+        <p id="page-subtitle">AI-powered fraud detection &amp; drift governance</p>
+      </div>
+      <div class="topbar-actions">
+        <span class="dataset-badge" id="dataset-badge">—</span>
+        <a class="btn ghost" href="/docs" target="_blank" rel="noopener">API docs</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- HOME -->
+      <section class="view active" id="view-home" data-view="home">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Adversarial-ready ML platform</p>
+            <h2>Detect fraud before it scales.<br /><span class="gradient-text">Monitor drift as attackers adapt.</span></h2>
+            <p class="lead">
+              CatBoost classification, Isolation Forest anomalies, and Kolmogorov–Smirnov drift —
+              orchestrated across seven architectural layers from business policy to observability.
+            </p>
+            <div class="hero-cta">
+              <button type="button" class="btn primary" data-goto="score">Score a transaction</button>
+              <button type="button" class="btn outline" data-goto="live">Open live stream</button>
+            </div>
+          </div>
+          <div class="hero-metrics" id="hero-metrics">
+            <article class="metric-card">
+              <span class="metric-label">System</span>
+              <strong class="metric-value" id="metric-health">—</strong>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Model</span>
+              <strong class="metric-value mono" id="metric-model">—</strong>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">Dataset</span>
+              <strong class="metric-value" id="metric-dataset">—</strong>
+            </article>
+            <article class="metric-card accent">
+              <span class="metric-label">Governance</span>
+              <strong class="metric-value" id="metric-gov">—</strong>
+            </article>
+          </div>
+        </div>
+
+        <div class="layer-grid" id="layer-grid"></div>
+      </section>
+
+      <!-- SCORE -->
+      <section class="view" id="view-score" data-view="score">
+        <div class="panel-grid">
+          <article class="card">
+            <header class="card-head">
+              <h2>Transaction input</h2>
+              <p>Use real labels for category, gender, and state — the API maps them with training vocabulary, then runs StandardScaler + CatBoost.</p>
+            </header>
+            <aside class="label-explainer">
+              <p><strong>CSV <code>is_fraud=1</code> vs model probability</strong></p>
+              <p class="muted">
+                In <code>fraudTest.csv</code>, <code>is_fraud</code> is the <em>known answer</em> from the dataset — not what our model predicted.
+                The model can flag a row as legit (low probability) even when <code>is_fraud=1</code>, or vice versa.
+                To match batch scoring, import a CSV row below or enter the same amount, category, and coordinates.
+              </p>
+            </aside>
+            <div class="import-row card-inset">
+              <label class="field inline">
+                <span>Import CSV row (0-based index)</span>
+                <input id="import-row-index" type="number" min="0" value="0" />
+              </label>
+              <label class="field inline">
+                <span>CSV path</span>
+                <input id="import-row-path" type="text" value="data/credit_dt/fraudTest.csv" />
+              </label>
+              <button type="button" class="btn outline" id="btn-import-row">Load into form</button>
+              <p class="import-label-hint hidden" id="import-label-hint"></p>
+            </div>
+            <aside class="feature-pipeline" id="scoring-pipeline-hint" hidden>
+              <p><strong>How scoring works</strong></p>
+              <ol id="pipeline-steps"></ol>
+            </aside>
+            <p class="computed-distance" id="distance-preview" aria-live="polite"></p>
+            <form id="form-manual" class="form-stack"></form>
+            <footer class="card-foot">
+              <button type="submit" form="form-manual" class="btn primary wide" id="btn-score-one">
+                Run fraud analysis
+              </button>
+            </footer>
+          </article>
+
+          <article class="card result-card" id="single-result">
+            <header class="card-head">
+              <h2>Verdict</h2>
+              <p>Awaiting input</p>
+            </header>
+            <div class="verdict-empty" id="verdict-empty">
+              <div class="ring idle">
+                <span>—</span>
+              </div>
+              <p>Submit a transaction to see probability, classification, and governance state.</p>
+            </div>
+            <div class="verdict-filled hidden" id="verdict-filled">
+              <div class="ring" id="prob-ring">
+                <svg viewBox="0 0 120 120">
+                  <circle class="ring-bg" cx="60" cy="60" r="52" />
+                  <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52" />
+                </svg>
+                <div class="ring-label">
+                  <strong id="prob-value">0.00</strong>
+                  <small>fraud probability</small>
+                </div>
+              </div>
+              <div class="verdict-pill" id="verdict-pill">LEGITIMATE</div>
+              <dl class="verdict-meta">
+                <div><dt>Governance</dt><dd id="verdict-gov">—</dd></div>
+                <div><dt>Threshold</dt><dd>0.50</dd></div>
+              </dl>
+              <div class="verdict-compare hidden" id="verdict-compare"></div>
+              <div class="verdict-features hidden" id="verdict-features"></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- BATCH -->
+      <section class="view" id="view-batch" data-view="batch">
+        <div class="tabs-inline" role="tablist">
+          <button type="button" class="tab-btn active" data-batch-tab="path">Server path</button>
+          <button type="button" class="tab-btn" data-batch-tab="upload">Upload CSV</button>
+        </div>
+
+        <div class="panel-grid batch-panels">
+          <article class="card batch-tab-panel active" id="batch-path">
+            <header class="card-head">
+              <h2>Score from file path</h2>
+              <p>Relative to project root on the API server.</p>
+            </header>
+            <form id="form-path" class="form-stack">
+              <label class="field">
+                <span>CSV path</span>
+                <input name="path" type="text" required placeholder="data/credit_dt/fraudTest.csv" />
+              </label>
+              <label class="field">
+                <span>Max rows</span>
+                <input name="max_rows" type="number" value="200" min="1" max="100000" />
+              </label>
+              <button type="submit" class="btn primary">Analyze batch</button>
+            </form>
+          </article>
+
+          <article class="card batch-tab-panel" id="batch-upload">
+            <header class="card-head">
+              <h2>Upload CSV</h2>
+              <p>Raw credit_dt or featurized columns accepted.</p>
+            </header>
+            <form id="form-upload" class="form-stack">
+              <label class="dropzone" id="dropzone">
+                <input name="file" type="file" accept=".csv" required />
+                <span class="dropzone-inner">
+                  <strong>Drop CSV here</strong> or click to browse
+                </span>
+              </label>
+              <label class="field">
+                <span>Max rows</span>
+                <input name="max_rows" type="number" value="200" min="1" max="100000" />
+              </label>
+              <button type="submit" class="btn primary">Analyze upload</button>
+            </form>
+          </article>
+
+          <article class="card wide-card" id="batch-results">
+            <header class="card-head row-head">
+              <div>
+                <h2>Batch results</h2>
+                <p id="batch-summary-text">No analysis run yet.</p>
+              </div>
+              <button type="button" class="btn ghost hidden" id="btn-download-csv">Download CSV</button>
+            </header>
+            <div class="batch-metrics hidden" id="batch-metrics"></div>
+            <div class="table-wrap hidden" id="table-wrap">
+              <table class="data-table" id="results-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Model prob</th>
+                    <th>Model</th>
+                    <th>CSV label</th>
+                    <th>Match?</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- LIVE -->
+      <section class="view" id="view-live" data-view="live">
+        <div class="live-toolbar card">
+          <div class="live-controls">
+            <button type="button" class="btn primary" id="btn-stream-start">Start stream</button>
+            <button type="button" class="btn outline" id="btn-stream-stop" disabled>Stop</button>
+            <label class="field inline">
+              <span>Max batches</span>
+              <input type="number" id="stream-max" value="80" min="5" max="500" />
+            </label>
+          </div>
+          <p class="hint mono" id="stream-path-label">—</p>
+        </div>
+
+        <div class="live-grid">
+          <article class="card">
+            <header class="card-head"><h2>Live metrics</h2></header>
+            <div class="live-stats" id="live-stats">
+              <div><span>Processed</span><strong id="live-processed">0</strong></div>
+              <div><span>Batch fraud prob</span><strong id="live-prob">—</strong></div>
+              <div><span>Flagged</span><strong id="live-flagged">0</strong></div>
+              <div><span>Governance</span><strong id="live-gov">—</strong></div>
+            </div>
+            <canvas id="chart-prob" height="120" aria-label="Fraud probability over time"></canvas>
+          </article>
+          <article class="card">
+            <header class="card-head"><h2>Drift &amp; feed</h2></header>
+            <ul class="feed" id="live-feed"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- SYSTEM -->
+      <section class="view" id="view-system" data-view="system">
+        <div class="panel-grid">
+          <article class="card">
+            <header class="card-head"><h2>Production model</h2></header>
+            <pre class="code-block" id="system-model">Loading…</pre>
+          </article>
+          <article class="card">
+            <header class="card-head"><h2>Feature schema</h2></header>
+            <ul class="feature-list" id="system-features"></ul>
+          </article>
+          <article class="card wide-card">
+            <header class="card-head"><h2>AI World layers</h2></header>
+            <div class="layer-grid compact" id="system-layers"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>Sentinel · <span id="api-base"></span></p>
+    </footer>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
