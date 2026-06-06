@@ -6,5 +6,7 @@ venv/
 .DS_Store
 artifacts/
 data/creditcard.csv
+data/credit_dt/fraudTrain.csv
+data/credit_dt/fraudTest.csv
 *.cbm
 .ipynb_checkpoints/
