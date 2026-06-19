@@ -9,6 +9,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
 from src.realtime.ai_engine import RealtimeFraudAIEngine
+from src.utils.paths import resolve_csv_path
 
 router = APIRouter(prefix="/v1/realtime", tags=["Real-Time AI"])
 
@@ -41,6 +42,15 @@ def realtime_history(n: int = 50) -> dict[str, Any]:
 
 @router.post("/reset")
 def realtime_reset() -> dict[str, str]:
+    import os
+
+    if os.environ.get("FRAUD_API_ALLOW_ADMIN", "").lower() not in ("1", "true", "yes"):
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            status_code=403,
+            detail="Admin endpoints disabled. Set FRAUD_API_ALLOW_ADMIN=1 for local use.",
+        )
     global _engine
     _engine = None
     return {"status": "engine_reset"}
@@ -59,8 +69,10 @@ async def realtime_websocket(websocket: WebSocket) -> None:
 
     try:
         init = await asyncio.wait_for(websocket.receive_json(), timeout=2.0)
-        max_batches = int(init.get("max_batches", max_batches))
-        source_path = init.get("source_path")
+        max_batches = min(int(init.get("max_batches", max_batches)), 10_000)
+        raw_path = init.get("source_path")
+        if raw_path:
+            source_path = str(resolve_csv_path(str(raw_path)))
     except (asyncio.TimeoutError, WebSocketDisconnect):
         pass
     except Exception:

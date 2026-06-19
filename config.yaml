@@ -43,6 +43,7 @@ realtime:
   window_size: 500
   drift_check_interval: 50
   stream_batch_size: 10
+  max_stream_rows: 100000  # cap rows loaded into memory for live replay
   transactions_per_second: 25
   fraud_threshold: 0.5
   history_size: 200

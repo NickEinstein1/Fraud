@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import io
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -11,10 +10,11 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from src.api.schemas import FilePathRequest, ScoreRequest, ScoreResponse, get_feature_columns
 from src.serving.runtime import FraudServingRuntime
+from src.utils.paths import resolve_csv_path
 
 router = APIRouter(prefix="/v1/score", tags=["Scoring"])
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
 _runtime: FraudServingRuntime | None = None
 
 
@@ -24,18 +24,6 @@ def get_runtime() -> FraudServingRuntime:
         _runtime = FraudServingRuntime()
         _runtime.load()
     return _runtime
-
-
-def _resolve_data_path(path: str) -> Path:
-    candidate = (PROJECT_ROOT / path).resolve()
-    root = PROJECT_ROOT.resolve()
-    if not str(candidate).startswith(str(root)):
-        raise HTTPException(status_code=400, detail="Path must stay inside the project directory")
-    if not candidate.exists():
-        raise HTTPException(status_code=404, detail=f"File not found: {path}")
-    if candidate.suffix.lower() != ".csv":
-        raise HTTPException(status_code=400, detail="Only CSV files are supported")
-    return candidate
 
 
 def _build_response(
@@ -122,7 +110,7 @@ def score_transactions(request: ScoreRequest) -> ScoreResponse:
 @router.post("/from-path", response_model=ScoreResponse)
 def score_from_path(body: FilePathRequest) -> dict[str, Any]:
     """Score transactions from a CSV path on the server (e.g. data/creditcard.csv)."""
-    path = _resolve_data_path(body.path)
+    path = resolve_csv_path(body.path)
     df = pd.read_csv(path, nrows=body.max_rows)
     response = _score_dataframe(df)
     payload = response.model_dump()
@@ -139,6 +127,11 @@ async def score_from_upload(
     if not file.filename or not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Upload a .csv file")
     content = await file.read()
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Upload too large (max {MAX_UPLOAD_BYTES // (1024 * 1024)} MB)",
+        )
     try:
         df = pd.read_csv(io.BytesIO(content), nrows=max_rows)
     except Exception as exc:

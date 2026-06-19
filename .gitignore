@@ -10,3 +10,5 @@ data/credit_dt/fraudTrain.csv
 data/credit_dt/fraudTest.csv
 *.cbm
 .ipynb_checkpoints/
+.matplotlib_cache/
+catboost_info/

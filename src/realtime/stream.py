@@ -18,10 +18,11 @@ class TransactionStream:
         batch_size: int = 10,
         shuffle: bool = True,
         random_state: int = 42,
+        max_rows: int | None = None,
     ):
         self.source_path = Path(source_path)
         self.batch_size = batch_size
-        self.df = pd.read_csv(self.source_path)
+        self.df = pd.read_csv(self.source_path, nrows=max_rows)
         if shuffle:
             self.df = self.df.sample(frac=1, random_state=random_state).reset_index(drop=True)
         self._cursor = 0

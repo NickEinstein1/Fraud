@@ -10,6 +10,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+# Writable matplotlib cache (avoids permission warnings in sandboxed/CI envs)
+_mpl_dir = ROOT / ".matplotlib_cache"
+_mpl_dir.mkdir(exist_ok=True)
+import os
+
+os.environ.setdefault("MPLCONFIGDIR", str(_mpl_dir))
+
 from src.architecture.layers import AIWorldStack
 from src.orchestration.pipeline import FraudAIPipeline
 from src.realtime.ai_engine import RealtimeFraudAIEngine
@@ -69,6 +76,9 @@ def main() -> None:
     if args.verify:
         import subprocess
 
+        setup = subprocess.call([sys.executable, str(ROOT / "scripts" / "check_setup.py")])
+        if setup != 0:
+            raise SystemExit(setup)
         script = ROOT / "scripts" / "verify_models.py"
         raise SystemExit(subprocess.call([sys.executable, str(script)]))
 

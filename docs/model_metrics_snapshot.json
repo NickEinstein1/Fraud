@@ -1,0 +1,139 @@
+{
+  "roc_auc": 0.9851265520227134,
+  "f1": 0.6886912325285895,
+  "accuracy": 0.99755,
+  "balanced_accuracy": 0.836492375968308,
+  "precision": 0.7038961038961039,
+  "recall": 0.6741293532338308,
+  "average_precision": 0.7092738793162614,
+  "confusion_matrix": [
+    [
+      99484,
+      114
+    ],
+    [
+      131,
+      271
+    ]
+  ],
+  "classification_report": "              precision    recall  f1-score   support\n\n           0       1.00      1.00      1.00     99598\n           1       0.70      0.67      0.69       402\n\n    accuracy                           1.00    100000\n   macro avg       0.85      0.84      0.84    100000\nweighted avg       1.00      1.00      1.00    100000\n",
+  "train_rows_after_smote": 396710,
+  "test_rows": 100000,
+  "test_fraud_count": 402,
+  "test_fraud_rate": 0.00402,
+  "feature_count": 13,
+  "catboost_tree_count": 500,
+  "catboost_depth": 6,
+  "catboost_iterations": 500,
+  "catboost_learning_rate": 0.05,
+  "threshold_sweep": {
+    "0.1": {
+      "precision": 0.3561030235162374,
+      "recall": 0.7910447761194029,
+      "f1": 0.4911196911196911,
+      "flagged": 893
+    },
+    "0.2": {
+      "precision": 0.49512987012987014,
+      "recall": 0.7587064676616916,
+      "f1": 0.5992141453831041,
+      "flagged": 616
+    },
+    "0.3": {
+      "precision": 0.58,
+      "recall": 0.7213930348258707,
+      "f1": 0.6430155210643016,
+      "flagged": 500
+    },
+    "0.4": {
+      "precision": 0.634090909090909,
+      "recall": 0.6940298507462687,
+      "f1": 0.66270783847981,
+      "flagged": 440
+    },
+    "0.5": {
+      "precision": 0.7038961038961039,
+      "recall": 0.6741293532338308,
+      "f1": 0.6886912325285895,
+      "flagged": 385
+    },
+    "0.6": {
+      "precision": 0.7390029325513197,
+      "recall": 0.6268656716417911,
+      "f1": 0.6783310901749664,
+      "flagged": 341
+    },
+    "0.7": {
+      "precision": 0.818815331010453,
+      "recall": 0.5845771144278606,
+      "f1": 0.6821480406386067,
+      "flagged": 287
+    },
+    "0.8": {
+      "precision": 0.8589211618257261,
+      "recall": 0.5149253731343284,
+      "f1": 0.6438569206842923,
+      "flagged": 241
+    },
+    "0.9": {
+      "precision": 0.9319371727748691,
+      "recall": 0.4427860696517413,
+      "f1": 0.6003372681281619,
+      "flagged": 191
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "category",
+      "importance": 63.60976712683712
+    },
+    {
+      "feature": "amt",
+      "importance": 11.473315565685619
+    },
+    {
+      "feature": "gender",
+      "importance": 9.458028834214954
+    },
+    {
+      "feature": "city_pop",
+      "importance": 3.0733510150363568
+    },
+    {
+      "feature": "trans_hour",
+      "importance": 2.8253365759437874
+    },
+    {
+      "feature": "unix_time",
+      "importance": 2.7962355426448946
+    },
+    {
+      "feature": "state",
+      "importance": 1.740665115527161
+    },
+    {
+      "feature": "lat",
+      "importance": 1.5552342896744635
+    },
+    {
+      "feature": "long",
+      "importance": 1.4836565313151915
+    },
+    {
+      "feature": "trans_dow",
+      "importance": 1.183353698121395
+    },
+    {
+      "feature": "merch_long",
+      "importance": 0.32003846307541567
+    },
+    {
+      "feature": "distance_km",
+      "importance": 0.25781052549689804
+    },
+    {
+      "feature": "merch_lat",
+      "importance": 0.22320671642675471
+    }
+  ]
+}

@@ -54,6 +54,14 @@ def get_model_card(filename: str) -> str:
 
 @router.post("/cards/regenerate")
 def regenerate_cards() -> dict[str, Any]:
+    """Regenerate model cards (local dev only — not for public deployments)."""
+    import os
+
+    if os.environ.get("FRAUD_API_ALLOW_ADMIN", "").lower() not in ("1", "true", "yes"):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin endpoints disabled. Set FRAUD_API_ALLOW_ADMIN=1 for local use.",
+        )
     config = load_config()
     registry = ModelRegistry(config["paths"]["registry"])
     prod = registry.get_production()

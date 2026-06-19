@@ -209,6 +209,7 @@ class RealtimeFraudAIEngine:
             batch_size=rt.get("stream_batch_size", 10),
             shuffle=True,
             random_state=self.config["data"]["random_state"],
+            max_rows=rt.get("max_stream_rows"),
         )
         count = 0
         for batch in stream.batches():
@@ -235,6 +236,7 @@ class RealtimeFraudAIEngine:
             batch_size=rt.get("stream_batch_size", 10),
             shuffle=True,
             random_state=self.config["data"]["random_state"],
+            max_rows=rt.get("max_stream_rows"),
         )
         count = 0
         async for batch in stream.async_batches(tps):
